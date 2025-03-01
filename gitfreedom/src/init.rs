@@ -9,7 +9,7 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 
 use chrono::Utc;
-use git2::{BranchType, Repository};
+use git2::{BranchType, Repository as GitRepository};
 use iroh::Endpoint;
 use iroh_blobs::net_protocol::Blobs;
 use serde_json::Value;
@@ -34,7 +34,7 @@ pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
     configuer.verify_init(name.clone())?;
 
     // Verify if the current directory is a git repository
-    let repo = Repository::open(&path)?;
+    let repo = GitRepository::open(&path)?;
     let git_path = repo.path().to_path_buf();
 
     // Initialize endpoint to create a client
@@ -68,11 +68,7 @@ pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
     let last_commit = branch.get().peel_to_commit()?.id().to_string();
 
     // Get the repository name and public key
-    let name: Vec<&str> = name.splitn(2, '-').collect();
-    let (name, pb_key) = (
-        name.get(0).unwrap().to_string(),
-        name.get(1).unwrap().to_string(),
-    );
+    let (pb_key, name) = Repo::split_name(&name);
 
     // Cteate de Repo struct
     let repo_params = Repo::new(

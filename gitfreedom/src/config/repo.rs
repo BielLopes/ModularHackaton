@@ -43,6 +43,14 @@ impl Repo {
     pub fn full_name(&self) -> String {
         format!("{}-{}", self.name, self.pb_key)
     }
+
+    pub fn split_name(full_name: &String) -> (String, String) {
+        let name: Vec<&str> = full_name.rsplitn(2, '-').collect();
+        (
+            name.get(0).unwrap().to_string(),
+            name.get(1).unwrap().to_string(),
+        )
+    }
 }
 
 /// Status of the repository.

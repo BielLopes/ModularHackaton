@@ -19,7 +19,7 @@ use iroh_blobs::{
 use swarm_discovery::{Discoverer, Peer};
 use tokio::runtime::{Builder, Runtime};
 
-use crate::{share::Compression, GF_JSON, PORT};
+use crate::{config::Repo, share::Compression, GF_JSON, PORT};
 
 // type PeerMap = Arc<Mutex<HashMap<String, Vec<NodeAddr>>>>;
 
@@ -130,7 +130,7 @@ impl CloneSeed {
 
         // Crete the repository folder just with the repository name
         let path = env::current_dir()?.canonicalize()?;
-        let path = path.join(self.full_name.splitn(2, '-').next().unwrap());
+        let path = path.join(Repo::split_name(&self.full_name).1);
         fs::create_dir_all(&path)?;
 
         // Save the repository manifest

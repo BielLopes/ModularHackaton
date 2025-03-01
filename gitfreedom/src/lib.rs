@@ -14,6 +14,6 @@ pub static FILES_JSON_OBJECT_NAME: &str = "files";
 
 // Network configs
 pub static PORT: &u16 = &7777;
-pub static RPC_URL: &str = "http://localhost:8547";
-pub static STYLUS_CONTRACT_ADDRESS: &str = "0xa6e41ffd769491a42a6e5ce453259b93983a22ef";
+pub static RPC_URL: &str = "https://rpc-sepolia.rockx.com/";
+pub static STYLUS_CONTRACT_ADDRESS: &str = "0x36AB833CfF7994F8a50E949f205aFD362BEEeF46";
 pub static PRIVATE_KEY: &str = "b6b15c8cb491557369f3c7d2c287b053eb229daa9c22138887752191c9520659";

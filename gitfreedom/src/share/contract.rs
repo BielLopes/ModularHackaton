@@ -30,8 +30,6 @@ impl RepositoryContract {
         abigen!(
             Contract,
             r#"[
-                function listAll() external view returns (address[] memory, (string,string,string,address[])[] memory)
-                function addRepository(string calldata name, string calldata hash) external
                 function getRepository(string calldata name, address owner) external view returns (string memory, string memory, string memory, address[] memory)
             ]"#
         );
@@ -52,14 +50,15 @@ impl RepositoryContract {
 
         // Get the repository data
         // let owner_address: Address = self.key.key.parse()?;
-        let repo = contract
-            .get_repository(self.name.clone(), wallet.address())
+        let repo: RepoData = contract
+            .get_repository(self.name.clone(), self.key.get_key().parse()?)
             .call()
-            .await;
+            .await
+            .expect("Could not get repository data!");
 
         println!("Repository:  {:?}", repo);
 
-        Ok("zkwla2nvi2lbj2wdrs5i5r4wj4rz3htnrtoq5z6x7crkxylj4pgq".to_string())
+        Ok(repo.1)
     }
 
     pub async fn deploy(&self) -> Result<bool, Box<dyn Error>> {
@@ -70,18 +69,15 @@ impl RepositoryContract {
         abigen!(
             Contract,
             r#"[
-                function listAll() external view returns (address[] memory, (string,string,string,address[])[] memory)
-                function addRepository(string calldata name, string calldata hash) external
-                function getRepository(string calldata name, address owner) external view returns (string memory, string memory, string memory, address[] memory)
+                function addRepository(string calldata name, string calldata description, string calldata hash) external;
             ]"#
         );
 
         let provider = Provider::<Http>::try_from(RPC_URL)?;
         let address: Address = STYLUS_CONTRACT_ADDRESS.parse()?;
 
-        let privkey = String::from(PRIVATE_KEY);
+        let privkey = self.key.get_key();
         let wallet = LocalWallet::from_str(&privkey)?;
-        println!("Public key: {}...", wallet.address().to_string());
         let chain_id = provider.get_chainid().await?.as_u64();
         let client = Arc::new(SignerMiddleware::new(
             provider,
@@ -92,7 +88,11 @@ impl RepositoryContract {
         let contract = Contract::new(address, client.clone());
 
         // Deploy the repository
-        let pending = contract.add_repository(self.name.clone(), self.repo.clone().unwrap().hash);
+        let pending = contract.add_repository(
+            self.name.clone(),
+            String::from("Description Test."),
+            self.repo.clone().unwrap().hash,
+        );
         if let Some(receipt) = pending.send().await?.await? {
             println!("Receipt = {:?}", receipt);
         }
