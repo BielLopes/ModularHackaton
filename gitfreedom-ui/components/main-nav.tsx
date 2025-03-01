@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button"
 
 export function MainNav({ viewMode, onViewModeChange }: { viewMode?: string, onViewModeChange?: (mode: string) => void }) {
   const pathname = usePathname()
-  const isRepositoryPage = pathname.startsWith('/repository/')
+  const isRepositoryPage = pathname.startsWith('/repositories/details')
 
   return (
     <div className="border-b">
       <div className="container flex h-14 items-center max-w-max">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground" />
           {isRepositoryPage && (
             <>

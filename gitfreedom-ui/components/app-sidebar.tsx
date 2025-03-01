@@ -20,17 +20,10 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="h-14 flex px-4">
         <Link href="/">
-          <div>
-          <div className="flex-1">
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_20250213-192608-991-JkvHb46bR3TDzuPIA4GGq9OPgdH6SF.png"
-                alt="GitFreedom"
-                className="h-8"
-              />              
-            </div>
-            <div className="flex-1">
-              <span className="text-xl font-bold text-cyan-400">&lt;git_freedom&gt;</span>
-            </div>
+          <div className="flex-1 items-center">
+            <span className="text-xl font-bold text-cyan-400">
+              &lt;git_freedom&gt;
+            </span>
           </div>
         </Link>
       </SidebarHeader>

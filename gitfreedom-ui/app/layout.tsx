@@ -11,7 +11,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="overflow-hidden">
+      <body className="overflow-auto">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <SidebarProvider defaultOpen={true}>{children}</SidebarProvider>
           <Toaster />
@@ -20,10 +20,6 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
 
 export const metadata = {
       generator: 'v0.dev'
