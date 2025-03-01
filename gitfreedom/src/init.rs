@@ -2,14 +2,11 @@ mod file_node;
 mod hasher;
 mod scaner;
 
-use std::env;
-use std::error::Error;
-use std::fs::{File, OpenOptions};
-use std::io::{Read, Write};
-use std::path::PathBuf;
+use std::fs::File;
+use std::io::Write;
+use std::{env, error::Error};
 
 use chrono::Utc;
-use git2::{BranchType, Repository as GitRepository};
 use iroh::Endpoint;
 use iroh_blobs::net_protocol::Blobs;
 use serde_json::Value;
@@ -18,7 +15,7 @@ use crate::config::{
     repo::{Repo, RepoStatus},
     Configuer,
 };
-use crate::errors::Errors;
+use crate::git::Git;
 use crate::{FILES_JSON_OBJECT_NAME, GF_JSON, NAME_PARAM};
 pub use file_node::FileNode;
 pub use hasher::Hasher;
@@ -26,16 +23,14 @@ use scaner::Scaner;
 
 pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
     // Get the repository name and path
-    let (name, path) = get_local_repo(name)?;
+    let path = env::current_dir()?.canonicalize()?;
+    let mut git = Git::new(path);
+    let (name, path) = git.get_local_repo(name)?;
 
     // Verify if the configs are initialized
     let configuer = Configuer::new();
     let name = configuer.full_name(name)?;
     configuer.verify_init(name.clone())?;
-
-    // Verify if the current directory is a git repository
-    let repo = GitRepository::open(&path)?;
-    let git_path = repo.path().to_path_buf();
 
     // Initialize endpoint to create a client
     let endpoint = Endpoint::builder().discovery_n0().bind().await.unwrap();
@@ -43,7 +38,7 @@ pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
     let client = blobs.client();
 
     // Get the directory tree and add the repository name and public key to the JSON tree
-    let scaner = Scaner::new(git_path, &client);
+    let scaner = Scaner::new(path.clone(), &client);
     let json_files = scaner.get_files().await;
     let mut repo_manifest = Value::default();
     repo_manifest[NAME_PARAM] = Value::String(name.clone());
@@ -56,16 +51,13 @@ pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
     println!("[INFO] Created {GF_JSON} file.");
 
     // Add {GF_JSON} to .gitignore if not already present
-    ignore_config(path)?;
+    git.ignore_config()?;
 
     // Get the hashe of the blobs in the {GF_JSON} file
     let gf_hash = Hasher::get_manifest_hash(&gf_path, &client).await;
 
     // Get the last commit hash
-    let branch = repo
-        .find_branch("main", BranchType::Local)
-        .expect(Errors::MainBranchNotFound.to_string().as_str());
-    let last_commit = branch.get().peel_to_commit()?.id().to_string();
+    let last_commit = git.get_last_commit()?;
 
     // Get the repository name and public key
     let (pb_key, name) = Repo::split_name(&name);
@@ -83,48 +75,6 @@ pub async fn run(name: Option<String>) -> Result<(), Box<dyn Error>> {
 
     // Add the repository to the {REPOS} file
     configuer.add_repo(repo_params)?;
-
-    Ok(())
-}
-
-/// The repositry name is the name of the current directory if not provide
-pub fn get_local_repo(name: Option<String>) -> Result<(String, PathBuf), Box<dyn Error>> {
-    // If the current directory is a .git folder, get the root path of the repository
-    let mut path = env::current_dir()?.canonicalize()?;
-    if path.ends_with(".git") {
-        path = path
-            .parent()
-            .expect("Can't find the repository root path.")
-            .canonicalize()?;
-    }
-    let name = name.unwrap_or_else(|| path.file_name().unwrap().to_str().unwrap().to_string());
-
-    Ok((name, path))
-}
-
-/// Ensure the {GF_JSON} are in the .gitignore file
-fn ignore_config(path: PathBuf) -> Result<(), Box<dyn Error>> {
-    // Add {GF_JSON} to .gitignore if not already present
-    let gitignore_path = path.join(".gitignore");
-
-    // Check if .gitignore exists and add {GF_JSON} if not already present
-    if gitignore_path.exists() {
-        let mut gitignore_content = String::new();
-        let mut file = File::open(&gitignore_path)?;
-        file.read_to_string(&mut gitignore_content)?;
-
-        if !gitignore_content.lines().any(|line| line.trim() == GF_JSON) {
-            let mut gitignore = OpenOptions::new().append(true).open(&gitignore_path)?;
-            writeln!(gitignore, "{GF_JSON}")?;
-            println!("[INFO] {GF_JSON} to .gitignore file.");
-        } else {
-            println!("[INFO] {GF_JSON} already exists in .gitignore file.");
-        }
-    } else {
-        let mut gitignore = File::create(&gitignore_path)?;
-        writeln!(gitignore, "{GF_JSON}")?;
-        println!("[INFO] Created .gitignore file and added {GF_JSON}.");
-    }
 
     Ok(())
 }
