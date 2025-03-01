@@ -65,6 +65,20 @@ impl Git {
         Ok(())
     }
 
+    pub fn restore_workdir(&self) -> Result<(), git2::Error> {
+        // Open the repository
+        let repo = Repository::open(&self.path)?;
+
+        // Configure the checkout options to force the checkout
+        let mut checkout_options = CheckoutBuilder::new();
+        checkout_options.force();
+
+        // Execute the checkout to restore the workdir
+        repo.checkout_head(Some(&mut checkout_options))?;
+
+        Ok(())
+    }
+
     pub fn get_last_commit(&self) -> Result<String, git2::Error> {
         // Open the repository
         let repo = Repository::open(&self.path)?;

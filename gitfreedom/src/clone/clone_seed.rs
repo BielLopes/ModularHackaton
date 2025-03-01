@@ -74,7 +74,6 @@ impl CloneSeed {
         self.addrs = Some(addrs);
 
         self.clone_repo(&blobs).await?;
-        println!("[INFO] Repository cloned!");
 
         Ok(())
     }

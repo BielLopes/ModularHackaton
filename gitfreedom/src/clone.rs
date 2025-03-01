@@ -1,10 +1,11 @@
 mod clone_seed;
 
-use std::error::Error;
+use std::{env, error::Error};
 
 use crate::{
     config::{Key, Repo},
     errors::Errors,
+    git::Git,
     share::RepositoryContract,
 };
 pub use clone_seed::CloneSeed;
@@ -20,12 +21,18 @@ pub async fn run(full_name: String) -> Result<(), Box<dyn Error>> {
     }
 
     // Retrive manifest hash
-    let contract = RepositoryContract::new(pb_key, None, name);
+    let contract = RepositoryContract::new(pb_key, None, name.clone());
     let hash = contract.get_hash_manifest().await?;
 
     // Clone the repository
     let mut seed = CloneSeed::new(full_name, hash);
     seed.clone().await?;
+    println!("[INFO] Repository cloned!");
+
+    // Restore the repository files
+    let path = env::current_dir()?.canonicalize()?.join(&name);
+    let git = Git::new(path);
+    git.restore_workdir();
 
     Ok(())
 }
