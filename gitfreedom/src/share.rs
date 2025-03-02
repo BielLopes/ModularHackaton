@@ -2,12 +2,12 @@ pub mod compression;
 mod contract;
 mod share_seed;
 
-use std::{error::Error, path::PathBuf};
+use std::{env, error::Error, path::PathBuf};
 
 use crate::{
     config::{Configuer, Key},
     errors::Errors,
-    init,
+    git::Git,
 };
 pub use compression::Compression;
 pub use contract::RepositoryContract;
@@ -22,9 +22,11 @@ pub async fn run(pv_key: PathBuf, name: Option<String>) -> Result<(), Box<dyn Er
 
     // Get reository name
     let configuer = Configuer::new();
+    let path = env::current_dir()?.canonicalize()?;
+    let mut git = Git::new(path);
     let name = match name {
         Some(name) => configuer.full_name(name)?,
-        None => configuer.full_name(init::get_local_repo(None)?.0)?,
+        None => configuer.full_name(git.get_local_repo(None)?.0)?,
     };
 
     // Get the repository metadata and check existence
@@ -43,7 +45,7 @@ pub async fn run(pv_key: PathBuf, name: Option<String>) -> Result<(), Box<dyn Er
 
     // Start to share the repository data
     let mut seed = ShareSeed::new(repo);
-    seed.share().await?;
+    seed.share().await.expect("Error sharing repository!");
 
     Ok(())
 }

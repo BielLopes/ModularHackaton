@@ -31,6 +31,6 @@ pub enum Errors {
     InvalidPrivateKey,
     #[error("Fail to deploy repository on chain!")]
     RepositoryDeployFail,
-    #[error("Can't file {0} on .git folder. Consider run `gf update` first")]
+    #[error("Can't find file {0} on .git folder. Consider run `gf update` first")]
     UpdateRepositoryMetadata(#[from] std::io::Error),
 }

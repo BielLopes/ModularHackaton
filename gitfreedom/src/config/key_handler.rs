@@ -9,6 +9,7 @@ use hex::FromHex;
 
 use crate::errors::Errors;
 
+#[derive(Clone)]
 pub struct Key {
     key: String,
 }
@@ -53,39 +54,5 @@ impl Key {
 
     pub fn get_key(&self) -> String {
         self.key.clone()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use ethers::{core::k256::ecdsa::SigningKey, types::H160, utils::secret_key_to_address};
-
-    fn private_key_to_public_key(private_key_hex: &str) -> String {
-        // Converte a chave privada de hexadecimal para bytes
-        let private_key_bytes = hex::decode(private_key_hex).expect("Failed to decode private key");
-
-        // Cria uma SigningKey (chave privada) a partir dos bytes
-        let signing_key = SigningKey::from_slice(&private_key_bytes).expect("Invalid private key");
-
-        // Obtém o endereço Ethereum associado à chave privada
-        let address: H160 = secret_key_to_address(&signing_key);
-
-        // Converte o endereço para uma string no formato "0x" + 40 dígitos hexadecimais
-        format!("{:?}", address)
-    }
-
-    #[test]
-    fn test_private_key_to_public_key() {
-        let private_key = "b6b15c8cb491557369f3c7d2c287b053eb229daa9c22138887752191c9520659";
-        let address = private_key_to_public_key(private_key);
-
-        // Print the key address
-        println!("Address: {}", address);
-
-        // Verifica se a chave pública gerada está correta
-        // assert_eq!(
-        //     public_key,
-        //     "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-        // );
     }
 }

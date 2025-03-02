@@ -3,6 +3,22 @@ use std::path::PathBuf;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Status of the repository.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum RepoStatus {
+    Initialized,
+    Seeding(SeedStatus),
+    Error,
+}
+
+/// Status of the seeding process.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum SeedStatus {
+    Updated,
+    Outdated,
+    Starting,
+}
+
 /// Representation of a repository in the {REPOS} file.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Repo {
@@ -51,19 +67,4 @@ impl Repo {
             name.get(1).unwrap().to_string(),
         )
     }
-}
-
-/// Status of the repository.
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum RepoStatus {
-    Initialized,
-    Seeding(SeedStatus),
-    Error,
-}
-
-/// Status of the seeding process.
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum SeedStatus {
-    Updated,
-    Outdated,
 }

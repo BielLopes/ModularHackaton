@@ -18,7 +18,7 @@ pub struct Configuer {
 impl Configuer {
     pub fn new() -> Self {
         Self {
-            config_folder: Configuer::find_gitfreedom_config()
+            config_folder: Self::find_gitfreedom_config()
                 .expect("Can't find the .gitfreedom folder.")
                 .1,
         }
@@ -59,13 +59,17 @@ impl Configuer {
         return Ok(pub_key);
     }
 
+    fn check_name(name: &str, repos: &HashMap<String, Repo>) -> bool {
+        repos.contains_key(name)
+    }
+
     /// Chech if the repository name is already in use.
-    pub fn verify_init(&self, name: String) -> Result<(), Box<dyn Error>> {
+    pub fn check_uniqueness(&self, name: String) -> Result<(), Box<dyn Error>> {
         // Get  {REPOS} file and the public key
         let configured_repos = self.get_repos_config()?;
 
         // Verify if the repository name already in use
-        if configured_repos.contains_key(&name) {
+        if Self::check_name(&name, &configured_repos) {
             return Err(Box::new(Errors::RepoNameAlreadyExists));
         }
 
@@ -83,6 +87,11 @@ impl Configuer {
         let mut repos_json = self
             .get_repos_config()
             .expect("Repo info not found. Verify Config files first!");
+
+        // Verify if the repository name already in use
+        if Self::check_name(&repo.full_name(), &repos_json) {
+            return Err(Box::new(Errors::RepoNameAlreadyExists));
+        }
 
         // Add the repository name and hash to the {REPOS} file
         repos_json.insert(repo.full_name(), repo);
