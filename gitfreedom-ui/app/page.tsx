@@ -45,7 +45,7 @@ export default function LandingPage() {
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href={"/repositories/"}>
+            <Link href="/repositories">
               <Button className="bg-cyan-500 hover:bg-cyan-600 text-[#070e21]">Launch App</Button>
             </Link>
           </div>
@@ -72,7 +72,7 @@ export default function LandingPage() {
                 software is stored, shared, and maintained through the power of decentralized networks.
               </p>
               <div className="flex flex-col gap-4 min-[400px]:flex-row justify-center">
-              <Link href={"/repositoriess"}>
+              <Link href="/repositories">
                 <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-[#070e21] gap-2">
                   Launch App
                   <ArrowRight className="h-4 w-4" />
@@ -136,7 +136,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Link href={"/repositoriess"}>
+              <Link href="/repositories">
                 <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-[#070e21]">
                   Launch App
                 </Button>              

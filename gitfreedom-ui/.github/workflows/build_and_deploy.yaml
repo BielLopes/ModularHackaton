@@ -11,18 +11,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      
+      - name: Install Yarn
+        run: npm install -g yarn
 
-      - name: Install dependencies
-        run: npm install --force && npm audit fix --force
+      - name: Install dependencies with Yarn
+        run: yarn install --force
 
       - name: Build
-        run: npm run build
+        run: yarn build
       
-      - name: Archive artfact
+      - name: Archive artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: out
+          path: out
     
   deploy:
     name: Deploy
@@ -35,8 +38,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: out
+          path: out
 
       - name: Send dist/* to FTP server
         uses: appleboy/scp-action@v0.1.7
@@ -46,6 +49,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 22
           use_insecure_cipher: true
-          source: "dist/**"
+          source: "out/**"
           target: "public_html/"
           strip_components: 1

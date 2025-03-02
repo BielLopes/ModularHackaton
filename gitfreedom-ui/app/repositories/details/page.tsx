@@ -8,14 +8,9 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { Button } from "@/components/ui/button"
 import { Download, GitFork, Heart } from 'lucide-react'
 import { useState } from "react"
-import { useSearchParams } from 'next/navigation'
 
 export default function RepositoryPage() {
   const [viewMode, setViewMode] = useState<"info" | "code">("info")
-
-  const searchParams = useSearchParams();
-  const repoName = searchParams.get('name');
-  
 
   interface MainNavProps {
     viewMode: "info" | "code";
@@ -28,11 +23,11 @@ export default function RepositoryPage() {
         <AppSidebar />
         <main className="flex-1">
           <ArbitrumBanner />
-          <MainNav viewMode={viewMode} onViewModeChange={setViewMode} />
+          <MainNav viewMode={viewMode}/>
           <div className="container py-6 px-5">
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="text-2xl font-bold">{repoName}</h1>
+                <h1 className="text-2xl font-bold">Repo</h1>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">

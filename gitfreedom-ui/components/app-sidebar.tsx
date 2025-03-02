@@ -1,5 +1,3 @@
-"use client"
-
 import { Code, Home, Settings } from "lucide-react"
 import {
   Sidebar,

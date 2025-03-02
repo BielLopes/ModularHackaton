@@ -1,5 +1,3 @@
-"use client"
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GitBranch, Info, Code, AlertCircle, GitPullRequestIcon, Play, BookText, Users } from 'lucide-react'
 import { SidebarTrigger } from "@/components/ui/sidebar"
